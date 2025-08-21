@@ -9,6 +9,10 @@ const fetchHandler = async () => {
 };
 function View() {
   const [users, setUsers] = React.useState([]);
+  // remove a user locally after successful delete to avoid full page reload
+  const handleDelete = (id) => {
+    setUsers((prev) => prev.filter((u) => (u._id || u.id) !== id));
+  };
   useEffect(() => {
     fetchHandler().then((data) => setUsers(data));
   }, []);
@@ -21,7 +25,7 @@ function View() {
         {users &&
           users.map((user) => (
             <div key={user._id || user.id}>
-              <User user={user} />
+              <User user={user} onDelete={handleDelete} />
             </div>
           ))}
       </div>
