@@ -19,8 +19,8 @@ function View() {
       <h1>View Users</h1>
       <div>
         {users &&
-          users.map((user, i) => (
-            <div key={i}>
+          users.map((user) => (
+            <div key={user._id || user.id}>
               <User user={user} />
             </div>
           ))}

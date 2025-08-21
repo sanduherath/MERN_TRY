@@ -181,7 +181,7 @@ function UpdateUser() {
                 fontSize: "16px",
               }}
             >
-              Add User
+              Update
             </button>
           </div>
         </form>
