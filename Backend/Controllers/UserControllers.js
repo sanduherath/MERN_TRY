@@ -4,10 +4,10 @@ const getAllUsers = async (req, res, next) => {
     let users; // Consistent variable name
     try {
         users = await User.find();
-        if (!users || users.length === 0) {
-            return res.status(404).json({ message: 'No users found' });
-        }
-        return res.status(200).json({ users });
+    // Always return 200 with an array (empty if none). Frontend expects an array;
+    // returning 404 caused Axios to throw and the View couldn't render.
+    if (!users) users = [];
+    return res.status(200).json({ users });
     } catch (err) {
         console.error(err);
         return res.status(500).json({ message: 'Server error', error: err.message });
