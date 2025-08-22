@@ -124,6 +124,17 @@ function View() {
     setPdfPreviewUrl(null);
   };
 
+
+
+  //send wap msg
+const handleSendReport = () => {
+  const phoneNumber = "+94716125714";
+  const message = "Here is the report you requested.";
+  const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
+  window.open(url, "_blank");
+};
+
+
   // Download handled via preview or separate page action; removed inline download function to satisfy linter
   return (
     <div>
@@ -212,6 +223,7 @@ function View() {
           </div>
         </div>
       )}
+      <button onClick={handleSendReport}>Send WhatsApp Report</button>
     </div>
   );
 }
