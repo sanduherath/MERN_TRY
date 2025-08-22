@@ -129,7 +129,7 @@ function View() {
   //send wap msg
 const handleSendReport = () => {
   const phoneNumber = "+94716125714";
-  const message = "Here is the report you requested.";
+  const message = "Thank you for joining us!";
   const url = `https://api.whatsapp.com/send?phone=${phoneNumber}&text=${encodeURIComponent(message)}`;
   window.open(url, "_blank");
 };
