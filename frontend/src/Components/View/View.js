@@ -24,6 +24,45 @@ function View() {
     fetchHandler().then((data) => setUsers(data));
   }, []);
 
+  // search
+  const [searchQuery, setSearchQuery] = useState("");
+  const [noResults, setNoResults] = useState(false);
+  const [allUsers, setAllUsers] = useState([]);
+
+  useEffect(() => {
+    fetchHandler()
+      .then((data) => {
+        const list = Array.isArray(data) ? data : (data && data.users) || [];
+        setAllUsers(list);
+        setUsers(list);
+      })
+      .catch((err) => console.error("fetch users", err));
+  }, []);
+
+  const handleSearch = (q) => {
+    const query = (q !== undefined ? q : searchQuery)
+      .toString()
+      .toLowerCase()
+      .trim();
+    setSearchQuery(q !== undefined ? q : searchQuery);
+
+    if (!query) {
+      setUsers(allUsers);
+      setNoResults(allUsers.length === 0);
+      return;
+    }
+
+    const filteredUsers = (allUsers || []).filter((user) =>
+      Object.values(user || {}).some((field) =>
+        String(field || "")
+          .toLowerCase()
+          .includes(query)
+      )
+    );
+    setUsers(filteredUsers);
+    setNoResults(filteredUsers.length === 0);
+  };
+
   // PDF preview/download setup
   const componentRef = useRef(null);
 
@@ -90,16 +129,28 @@ function View() {
     <div>
       <Nav />
       <h1>View Users</h1>
-      <div ref={componentRef}>
-        <div>
-          {users &&
-            users.map((user) => (
-              <div key={user._id || user.id}>
-                <User user={user} onDelete={handleDelete} />
-              </div>
-            ))}
+      <input
+        type="text"
+        name="search"
+        placeholder="Search users..."
+        value={searchQuery}
+        onChange={(e) => handleSearch(e.target.value)}
+        style={{ padding: "6px 8px", width: "280px" }}
+      />
+      {noResults ? (
+        <p>No results found</p>
+      ) : (
+        <div ref={componentRef}>
+          <div>
+            {users &&
+              users.map((user) => (
+                <div key={user._id || user.id}>
+                  <User user={user} onDelete={handleDelete} />
+                </div>
+              ))}
+          </div>
         </div>
-      </div>
+      )}
       <button onClick={previewPdf} disabled={!users || users.length === 0}>
         Print Users Report
       </button>
