@@ -1,9 +1,9 @@
 const User = require("../Model/UserModel");
+const PDFDocument = require("pdfkit");
 
 const getAllUsers = async (req, res, next) => {
   let users; // Consistent variable name
   try {
-    
     users = await User.find();
     // Always return 200 with an array (empty if none). Frontend expects an array;
     // returning 404 caused Axios to throw and the View couldn't render.
@@ -96,3 +96,42 @@ exports.addUsers = addUsers;
 exports.getUserById = getUserById;
 exports.updateUser = updateUser;
 exports.deleteUser = deleteUser;
+// Generate a PDF report of all users and stream it back to the client
+const generateUsersReport = async (req, res, next) => {
+  try {
+    const users = (await User.find()) || [];
+
+    // Set response headers for PDF inline display
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", 'inline; filename="users_report.pdf"');
+
+    const doc = new PDFDocument({ size: "A4", margin: 50 });
+    // Pipe PDF stream directly to response
+    doc.pipe(res);
+
+    doc.fontSize(18).text("Users Report", { align: "center" });
+    doc.moveDown(1);
+
+    if (!users || users.length === 0) {
+      doc.fontSize(12).text("No users available.", { align: "left" });
+    } else {
+      users.forEach((u, idx) => {
+        doc.fontSize(12).text(`${idx + 1}. ${u.name || ""}`);
+        doc.fontSize(10).text(`   Email: ${u.gmail || ""}`);
+        doc.fontSize(10).text(`   Age: ${u.age || ""}`);
+        doc.fontSize(10).text(`   Address: ${u.address || ""}`);
+        doc.moveDown(0.5);
+      });
+    }
+
+    doc.end();
+    // PDF will be streamed to the client; no further response needed here
+  } catch (err) {
+    console.error("generateUsersReport error", err);
+    return res
+      .status(500)
+      .json({ message: "Server error generating report", error: err.message });
+  }
+};
+
+exports.generateUsersReport = generateUsersReport;
